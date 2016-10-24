@@ -18,11 +18,28 @@ public class notesDatabaseHelper extends SQLiteOpenHelper {
 	private static notesDatabaseHelper helper;
 	// 创建类似于文件管理器根目录的列表
 	private String CreateRootTable = "create table " + myConstant.ParentTable
-			+ "(+" + myConstant.NotesName + " text," + myConstant.NotesType
+			+ "(" + "_id integer primary key autoincrement,"
+			+ myConstant.NotesName + " text," + myConstant.NotesType
 			+ " integer," + myConstant.NoteLists + " text,"
 			+ myConstant.Notesmessage + " text," + myConstant.Images + " text,"
-			+ myConstant.Parent + " text" + ")";
-
+			+ myConstant.Parent + " text," + myConstant.NotesTime + " text"
+			+ ")";
+	// 创建所有具体笔记的列表
+	private String CreateNotesOnlyTable = "create table "
+			+ myConstant.NotesOnlyTable + "("
+			+ "_id integer primary key autoincrement," + myConstant.NotesName
+			+ " text," + myConstant.NotesType + " integer,"
+			+ myConstant.NoteLists + " text," + myConstant.Notesmessage
+			+ " text," + myConstant.Images + " text," + myConstant.Parent
+			+ " text," + myConstant.NotesTime + " text" + ")";
+	//创建存放回收站笔记的列表
+	private String CreateRetrieveNotesTable = "create table "
+			+ myConstant.RetrieveNotes + "("
+			+ "_id integer primary key autoincrement," + myConstant.NotesName
+			+ " text," + myConstant.NotesType + " integer,"
+			+ myConstant.NoteLists + " text," + myConstant.Notesmessage
+			+ " text," + myConstant.Images + " text," + myConstant.Parent
+			+ " text," + myConstant.NotesTime + " text" + ")";
 	// 私有化构造方法
 	private notesDatabaseHelper(Context context) {
 		super(context, "notes_db", null, 1);
@@ -32,6 +49,10 @@ public class notesDatabaseHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		// 创建根列表
 		db.execSQL(CreateRootTable);
+		// 创建存储具体笔记的列表
+		db.execSQL(CreateNotesOnlyTable);
+		//创建存储回收站笔记的列表
+		db.execSQL(CreateRetrieveNotesTable);
 	}
 
 	@Override

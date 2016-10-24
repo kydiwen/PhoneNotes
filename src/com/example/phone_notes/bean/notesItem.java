@@ -20,6 +20,22 @@ public class notesItem {
 	private ArrayList<String> images;// 笔记中的图片资源
 	private String parentName;// 所在分类名称
 	private ArrayList<String> labels;// 存放标签信息
+	private String notesTime;// 笔记的时间，分类不设置此属性
+	public String getNotesTime() {
+		return notesTime;
+	}
+
+	public void setNotesTime(String notesTime) {
+		this.notesTime = notesTime;
+	}
+
+	public ArrayList<String> getLabels() {
+		return labels;
+	}
+
+	public void setLabels(ArrayList<String> labels) {
+		this.labels = labels;
+	}
 
 	public String getParentName() {
 		return parentName;

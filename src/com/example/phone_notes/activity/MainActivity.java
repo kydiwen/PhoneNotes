@@ -1,8 +1,6 @@
 package com.example.phone_notes.activity;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
+import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -10,12 +8,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.graphics.drawable.BitmapDrawable;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.TextView;
 
 import com.example.phone_notes.R;
 import com.example.phone_notes.base.BaseActivity;
@@ -26,18 +29,24 @@ import com.example.phone_notes.utils.ToastUtils;
 public class MainActivity extends BaseActivity {
 	private ImageView lock_unlock;// 加密按钮
 	private EditText search;// 搜索框
-	private ImageView btn_add;// 添加按钮
 	private boolean is_in_reme = false;// 判断是否开启了加密模式
 	private boolean is_pass_setted = false;// 判断密码是否已设置
 	private Editor editor;
 	private boolean is_back_pressed = false;
-
+	private ListView notes_list;// 笔记列表
+	private ImageView notes_add;// 添加按钮
+	private PopupWindow pop;// 悬浮窗控件
+	private TextView add_type;// 添加分类
+	private TextView add_notes;// 添加笔记
+	private TextView  retrieve;//回收站
 	@Override
 	protected void initView() {
 		setContentView(R.layout.activity_main);
 		lock_unlock = (ImageView) findViewById(R.id.lock_unlock);
 		search = (EditText) findViewById(R.id.search);
-		btn_add = (ImageView) findViewById(R.id.btn_add);
+		notes_list = (ListView) findViewById(R.id.notes_list);
+		notes_add = (ImageView) findViewById(R.id.btn_add);
+		initPopView();
 	}
 
 	@Override
@@ -104,11 +113,84 @@ public class MainActivity extends BaseActivity {
 						setAndopenPass();
 					}
 				}
-
+			}
+		});
+		// 添加按钮点击事件
+		notes_add.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				// 点击按钮提示添加分类或者添加笔记
+				if (pop.isShowing()) {
+					pop.dismiss();
+					pop.update();
+				} else {
+					showPopUp(notes_add);
+				}
+			}
+		});
+		//添加分类按钮点击事件
+		add_type.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//点击添加分类按钮弹出对话框，用户输入分类名称，操作数据库，在当前分类下添加分类
+				AlertDialog.Builder builder=new Builder(mContext);
+				View  view=View.inflate(mContext, R.layout.dialog_addtype,null);
+				EditText input_typename=(EditText) view.findViewById(R.id.input_typename);
+				Button  ensure=(Button) view.findViewById(R.id.ensure);
+				Button  cancel=(Button) view.findViewById(R.id.cancel);
+				builder.setTitle("添加分类");
+				builder.setView(view);
+				builder.create().show();
+				//确定按钮点击事件
+				ensure.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						
+					}
+				});
+				//取消按钮点击事件
+				cancel.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						
+					}
+				});
+			}
+		});
+		//添加笔记点击事件
+		add_notes.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//点击添加笔记:此操作进入添加与编辑界面，传递操作类型值，在下一页面做出区分
+				Intent intent=new Intent(mContext,NotesDetailEditActivity.class);
+				intent.putExtra(myConstant.NotesOperateType,myConstant.Notes_add);
+				startActivity(intent);
+			}
+		});
+		//回收站按钮点击事件
+		retrieve.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				//点击进入回收站界面
 			}
 		});
 	}
-
+	// 初始化popwindow界面组件
+	private void initPopView() {
+		View view = View.inflate(mContext, R.layout.main_add_pop, null);
+		//测量popwindow
+		view.measure(0, 0);
+		add_type = (TextView) view.findViewById(R.id.add_type);
+		add_notes = (TextView) view.findViewById(R.id.add_notes);
+		retrieve=(TextView) view.findViewById(R.id.retrieve);
+		pop = new PopupWindow(view, view.getMeasuredWidth(),
+				view.getMeasuredHeight(), true);
+		pop.setFocusable(true);
+		pop.setTouchable(true);
+		pop.setBackgroundDrawable(new BitmapDrawable());
+	}
 	// 设置密码，并开启加密
 	private void setAndopenPass() {
 		AlertDialog.Builder builder = new Builder(mContext);
@@ -123,7 +205,6 @@ public class MainActivity extends BaseActivity {
 		final Dialog dialog = builder.create();
 		// 确定按钮点击事件
 		ensure.setOnClickListener(new OnClickListener() {
-
 			@Override
 			public void onClick(View arg0) {
 				// 判断用户输入是否合法
@@ -143,6 +224,9 @@ public class MainActivity extends BaseActivity {
 					editor.commit();
 					dialog.dismiss();
 					lock_unlock.setImageResource(R.drawable.lock);
+					//提示密码已开启加密
+					ToastUtils.show(mContext, "加密已开启");
+					is_in_reme=true;
 				} else {
 					ToastUtils.show(mContext, "请确保两次输入一致");
 				}
@@ -160,13 +244,11 @@ public class MainActivity extends BaseActivity {
 		// 显示对话框
 		dialog.show();
 	}
-
 	// 进入主界面方法封装
 	public static void enterMain(Context con, Class<MainActivity> class1) {
 		Intent intent = new Intent(con, class1);
 		con.startActivity(intent);
 	}
-
 	// 加密方法封装
 	private void initPass() {
 		// 获取是否开启了加密模式
@@ -177,21 +259,27 @@ public class MainActivity extends BaseActivity {
 			lock_unlock.setImageResource(R.drawable.unlock);
 		}
 	}
-
 	@Override
 	public void onBackPressed() {
-		if (!is_back_pressed) {
-			ToastUtils.show(mContext, "再按一次退出");
-			is_back_pressed = true;
-			Timer timer = new Timer();
-			timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					is_back_pressed = false;
-				}
-			}, 2000);
-		} else {
-			finish();
-		}
+		super.onBackPressed();
+		// if (!is_back_pressed) {
+		// ToastUtils.show(mContext, "再按一次退出");
+		// is_back_pressed = true;
+		// Timer timer = new Timer();
+		// timer.schedule(new TimerTask() {
+		// @Override
+		// public void run() {
+		// is_back_pressed = false;
+		// }
+		// }, 2000);
+		// } else {
+		// finish();
+		// }
+	}
+	// 设置popwindow显示在组件上方
+	private void showPopUp(View v) {
+		int[] location = new int[2];
+		v.getLocationOnScreen(location);
+		pop.showAtLocation(v, Gravity.NO_GRAVITY, location[0],location[1]-pop.getHeight());
 	}
 }

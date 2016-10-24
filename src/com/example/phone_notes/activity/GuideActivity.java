@@ -83,7 +83,7 @@ public class GuideActivity extends BaseActivity {
 				}
 			}
 		});
-		//开启动画
+		// 开启动画
 		guide_logo.setAnimation(alphaAnimation);
 	}
 }

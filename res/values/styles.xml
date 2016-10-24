@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!--
         Base application theme, dependent on API level. This theme is replaced
@@ -16,5 +16,13 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+	<!-- 主界面pop弹窗按钮样式 -->
+	<style name="main_pop_btn_style">
+	    <item name="android:layout_width">wrap_content</item>
+	    <item name="android:layout_height">wrap_content</item>
+	    <item name="android:layout_centerHorizontal">true</item>
+	    <item name="android:padding">10dp</item>
+	    <item name="android:background">@drawable/main_pop_selector</item>
+	    <item name="android:textSize">20sp</item>
+	</style>
 </resources>

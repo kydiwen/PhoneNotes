@@ -33,5 +33,16 @@ public interface myConstant {
 	public static final String Images = "images";
 	// 保存笔记父名称 列名称
 	public static final String Parent = "parent";
-
+	// 保存全部存储具体笔记类的表 名称
+	public static final String NotesOnlyTable = "notesonlytable";
+	// 保存笔记时间的列名称
+	public static final String NotesTime = "notestime";
+	//保存回收站列表名称
+	public static final String RetrieveNotes="retrievenotes";
+	//保存对笔记的操作类型：添加笔记或者编辑笔记
+	public static final  String  NotesOperateType="operate_type";
+	//保存添加笔记标识
+	public static final int Notes_add=0;
+	//保存编辑笔记标识
+	public static final int Notes_edit=1;
 }
