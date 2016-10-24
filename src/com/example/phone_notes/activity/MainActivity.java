@@ -1,6 +1,5 @@
 package com.example.phone_notes.activity;
 
-import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -38,7 +37,8 @@ public class MainActivity extends BaseActivity {
 	private PopupWindow pop;// 悬浮窗控件
 	private TextView add_type;// 添加分类
 	private TextView add_notes;// 添加笔记
-	private TextView  retrieve;//回收站
+	private TextView retrieve;// 回收站
+
 	@Override
 	protected void initView() {
 		setContentView(R.layout.activity_main);
@@ -128,69 +128,77 @@ public class MainActivity extends BaseActivity {
 				}
 			}
 		});
-		//添加分类按钮点击事件
+		// 添加分类按钮点击事件
 		add_type.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//点击添加分类按钮弹出对话框，用户输入分类名称，操作数据库，在当前分类下添加分类
-				AlertDialog.Builder builder=new Builder(mContext);
-				View  view=View.inflate(mContext, R.layout.dialog_addtype,null);
-				EditText input_typename=(EditText) view.findViewById(R.id.input_typename);
-				Button  ensure=(Button) view.findViewById(R.id.ensure);
-				Button  cancel=(Button) view.findViewById(R.id.cancel);
+				// 点击添加分类按钮弹出对话框，用户输入分类名称，操作数据库，在当前分类下添加分类
+				AlertDialog.Builder builder = new Builder(mContext);
+				View view = View.inflate(mContext, R.layout.dialog_addtype,
+						null);
+				EditText input_typename = (EditText) view
+						.findViewById(R.id.input_typename);
+				Button ensure = (Button) view.findViewById(R.id.ensure);
+				Button cancel = (Button) view.findViewById(R.id.cancel);
 				builder.setTitle("添加分类");
 				builder.setView(view);
 				builder.create().show();
-				//确定按钮点击事件
+				// 确定按钮点击事件
 				ensure.setOnClickListener(new OnClickListener() {
-					
+
 					@Override
 					public void onClick(View v) {
-						
+
 					}
 				});
-				//取消按钮点击事件
+				// 取消按钮点击事件
 				cancel.setOnClickListener(new OnClickListener() {
-					
+
 					@Override
 					public void onClick(View v) {
-						
+
 					}
 				});
 			}
 		});
-		//添加笔记点击事件
+		// 添加笔记点击事件
 		add_notes.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//点击添加笔记:此操作进入添加与编辑界面，传递操作类型值，在下一页面做出区分
-				Intent intent=new Intent(mContext,NotesDetailEditActivity.class);
-				intent.putExtra(myConstant.NotesOperateType,myConstant.Notes_add);
-				startActivity(intent);
+				// 点击添加笔记:此操作进入添加与编辑界面，传递操作类型值，在下一页面做出区分
+				Intent intent = new Intent(mContext,
+						NotesDetailEditActivity.class);
+				intent.putExtra(myConstant.NotesOperateType,
+						myConstant.Notes_add);
+				startActivityForResult(intent, myConstant.RequestCode_addnotes);
 			}
 		});
-		//回收站按钮点击事件
+		// 回收站按钮点击事件
 		retrieve.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//点击进入回收站界面
+				// 点击进入回收站界面
+				Intent intent = new Intent(mContext, RetrieveActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
+
 	// 初始化popwindow界面组件
 	private void initPopView() {
 		View view = View.inflate(mContext, R.layout.main_add_pop, null);
-		//测量popwindow
+		// 测量popwindow
 		view.measure(0, 0);
 		add_type = (TextView) view.findViewById(R.id.add_type);
 		add_notes = (TextView) view.findViewById(R.id.add_notes);
-		retrieve=(TextView) view.findViewById(R.id.retrieve);
+		retrieve = (TextView) view.findViewById(R.id.retrieve);
 		pop = new PopupWindow(view, view.getMeasuredWidth(),
 				view.getMeasuredHeight(), true);
 		pop.setFocusable(true);
 		pop.setTouchable(true);
 		pop.setBackgroundDrawable(new BitmapDrawable());
 	}
+
 	// 设置密码，并开启加密
 	private void setAndopenPass() {
 		AlertDialog.Builder builder = new Builder(mContext);
@@ -224,9 +232,9 @@ public class MainActivity extends BaseActivity {
 					editor.commit();
 					dialog.dismiss();
 					lock_unlock.setImageResource(R.drawable.lock);
-					//提示密码已开启加密
+					// 提示密码已开启加密
 					ToastUtils.show(mContext, "加密已开启");
-					is_in_reme=true;
+					is_in_reme = true;
 				} else {
 					ToastUtils.show(mContext, "请确保两次输入一致");
 				}
@@ -244,11 +252,13 @@ public class MainActivity extends BaseActivity {
 		// 显示对话框
 		dialog.show();
 	}
+
 	// 进入主界面方法封装
 	public static void enterMain(Context con, Class<MainActivity> class1) {
 		Intent intent = new Intent(con, class1);
 		con.startActivity(intent);
 	}
+
 	// 加密方法封装
 	private void initPass() {
 		// 获取是否开启了加密模式
@@ -259,6 +269,7 @@ public class MainActivity extends BaseActivity {
 			lock_unlock.setImageResource(R.drawable.unlock);
 		}
 	}
+
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -276,10 +287,27 @@ public class MainActivity extends BaseActivity {
 		// finish();
 		// }
 	}
+
 	// 设置popwindow显示在组件上方
 	private void showPopUp(View v) {
 		int[] location = new int[2];
 		v.getLocationOnScreen(location);
-		pop.showAtLocation(v, Gravity.NO_GRAVITY, location[0],location[1]-pop.getHeight());
+		pop.showAtLocation(v, Gravity.NO_GRAVITY, location[0], location[1]
+				- pop.getHeight());
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		// 添加笔记后更新当前分类列表
+		case myConstant.RequestCode_addnotes:
+
+			break;
+
+		default:
+			break;
+		}
 	}
 }

@@ -77,9 +77,10 @@ public final class R {
         public static final int activity_login=0x7f030001;
         public static final int activity_main=0x7f030002;
         public static final int activity_notesdetailedit=0x7f030003;
-        public static final int dialog_addtype=0x7f030004;
-        public static final int dialog_pass_setting=0x7f030005;
-        public static final int main_add_pop=0x7f030006;
+        public static final int activity_retrieve=0x7f030004;
+        public static final int dialog_addtype=0x7f030005;
+        public static final int dialog_pass_setting=0x7f030006;
+        public static final int main_add_pop=0x7f030007;
     }
     public static final class string {
         public static final int app_name=0x7f060000;
