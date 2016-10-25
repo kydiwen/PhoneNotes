@@ -55,6 +55,7 @@ public class MainActivity extends BaseActivity {
 	private ArrayList<notesItem> data;// 列表数据
 	private NoteslistAdapter adapter;// 列表适配器
 	private String CurrentType = myConstant.ParentTable;// 当前所在分类
+	private String ParentTable = "";// 父列表
 
 	@Override
 	protected void initView() {
@@ -175,13 +176,14 @@ public class MainActivity extends BaseActivity {
 					@Override
 					public void onClick(View v) {
 						// 执行添加分类操作，首先判断所处分类，然后设置新建分类父类为所处分类
+						// 此处不改变父列表的值，只允许在页面跳转过程中改变
 						handleAddType(input_typename.getText().toString(),
-								dialog, CurrentType);
+								dialog, ParentTable);
 						// 更新列表
 						notesItem item = new notesItem();
 						item.setNotesType(0);
 						item.setNotesName(input_typename.getText().toString());
-						item.setParentName(CurrentType);
+						item.setParentName(ParentTable);
 						item.setNotesTime(TimeFormatUtil.format(new Date()));
 						data.add(item);
 						adapter.notifyDataSetChanged();
@@ -276,15 +278,16 @@ public class MainActivity extends BaseActivity {
 
 						@Override
 						public void onClick(View v) {
+							ParentTable = CurrentType;
+							CurrentType = data.get(position).getNotesName();
 							handleAddType(input_typename.getText().toString(),
-									dialog, data.get(position).getNotesName());
+									dialog, ParentTable);
 							// 添加成功后刷新当前列表，更新当前列表下数据
 							adapter.notifyDataSetChanged();
 							// 隐藏对话框
 							dialog.dismiss();
 							nulldialog.dismiss();
 							// 刷新数据后进入新建分类列表
-							CurrentType = data.get(position).getNotesName();
 							data.clear();
 							// 重新读取数据库，获取更新后笔记列表
 							readDatabaseData();
@@ -313,6 +316,7 @@ public class MainActivity extends BaseActivity {
 				}
 			});
 		} else {// 当前分类不为空，点击刷新当前分类列表，并更新CurrentType用于在监听返回键时返回上一级列表
+			ParentTable = CurrentType;
 			CurrentType = data.get(position).getNotesName();
 			data.clear();
 			// 重新读取当数据库，刷新笔记列表
@@ -408,7 +412,7 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		if (CurrentType == myConstant.ParentTable) {
+		if (CurrentType.equals(myConstant.ParentTable)) {
 			if (!is_back_pressed) {
 				ToastUtils.show(mContext, "再按一次退出");
 				is_back_pressed = true;
@@ -425,7 +429,6 @@ public class MainActivity extends BaseActivity {
 		} else {
 			CurrentType = data.get(0).getParentName();
 			data.clear();
-			ToastUtils.show(mContext, CurrentType);
 			readDatabaseData();
 		}
 	}
@@ -462,7 +465,7 @@ public class MainActivity extends BaseActivity {
 			values.put(myConstant.NotesName, type);
 			values.put(myConstant.Parent, parent);
 			values.put(myConstant.NotesTime, TimeFormatUtil.format(new Date()));
-			myNotesdatabase.insert(parent, null, values);
+			myNotesdatabase.insert(CurrentType, null, values);
 			// 隐藏对话框
 			dialog.dismiss();
 			data_null_notes.setVisibility(View.INVISIBLE);
