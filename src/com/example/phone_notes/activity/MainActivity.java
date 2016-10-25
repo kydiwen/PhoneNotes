@@ -2,6 +2,8 @@ package com.example.phone_notes.activity;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -17,6 +19,8 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -172,7 +176,15 @@ public class MainActivity extends BaseActivity {
 					public void onClick(View v) {
 						// 执行添加分类操作，首先判断所处分类，然后设置新建分类父类为所处分类
 						handleAddType(input_typename.getText().toString(),
-								dialog);
+								dialog, CurrentType);
+						// 更新列表
+						notesItem item = new notesItem();
+						item.setNotesType(0);
+						item.setNotesName(input_typename.getText().toString());
+						item.setParentName(CurrentType);
+						item.setNotesTime(TimeFormatUtil.format(new Date()));
+						data.add(item);
+						adapter.notifyDataSetChanged();
 					}
 				});
 				// 取消按钮点击事件
@@ -207,6 +219,105 @@ public class MainActivity extends BaseActivity {
 				startActivity(intent);
 			}
 		});
+		// 为笔记列表单项点击事件
+		notes_list.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// 首先判断当前项是分类还是笔记
+				switch (data.get(position).getNotesType()) {
+				case 0:// 当前是分类
+						// 首先判断当前分类是否为空，若为空，则弹出对话框，提示新建分类或新建笔记
+					handle_listitemclick_type(position);
+					break;
+				case 1:// 当前是笔记
+					break;
+				default:
+					break;
+				}
+			}
+		});
+	}
+
+	// 处理笔记列表点击事件---点击分类列表项
+	private void handle_listitemclick_type(final int position) {
+		Cursor cursor = myNotesdatabase.query(
+				data.get(position).getNotesName(), null, null, null, null,
+				null, null);
+		if (cursor.getCount() == 0) {// 当前分类无数据，点击提示添加分类或笔记
+			AlertDialog.Builder builder = new Builder(mContext);
+			View view = View.inflate(mContext,
+					R.layout.layout_dialog_handlenotesitemclick_null, null);
+			builder.setView(view);
+			final Dialog nulldialog = builder.create();
+			nulldialog.show();
+			nulldialog.getWindow().setLayout(250, 250);
+			TextView add_type = (TextView) view.findViewById(R.id.add_type);
+			TextView add_notes = (TextView) view.findViewById(R.id.add_notes);
+			// 设置添加分类点击事件
+			add_type.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					AlertDialog.Builder builder = new Builder(mContext);
+					View view = View.inflate(mContext, R.layout.dialog_addtype,
+							null);
+					final EditText input_typename = (EditText) view
+							.findViewById(R.id.input_typename);
+					Button ensure = (Button) view.findViewById(R.id.ensure);
+					Button cancel = (Button) view.findViewById(R.id.cancel);
+					builder.setTitle("添加分类");
+					builder.setView(view);
+					final Dialog dialog = builder.create();
+					dialog.show();
+					// 确定按钮点击事件
+					ensure.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							handleAddType(input_typename.getText().toString(),
+									dialog, data.get(position).getNotesName());
+							// 添加成功后刷新当前列表，更新当前列表下数据
+							adapter.notifyDataSetChanged();
+							// 隐藏对话框
+							dialog.dismiss();
+							nulldialog.dismiss();
+							// 刷新数据后进入新建分类列表
+							CurrentType = data.get(position).getNotesName();
+							data.clear();
+							// 重新读取数据库，获取更新后笔记列表
+							readDatabaseData();
+							// 隐藏对话框
+							dialog.dismiss();
+						}
+					});
+					// 取消按钮点击事件
+					cancel.setOnClickListener(new OnClickListener() {
+
+						@Override
+						public void onClick(View v) {
+							// TODO Auto-generated method stub
+							dialog.dismiss();
+							nulldialog.dismiss();
+						}
+					});
+				}
+			});
+			// 设置添加笔记点击事件
+			add_notes.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+
+				}
+			});
+		} else {// 当前分类不为空，点击刷新当前分类列表，并更新CurrentType用于在监听返回键时返回上一级列表
+			CurrentType = data.get(position).getNotesName();
+			data.clear();
+			// 重新读取当数据库，刷新笔记列表
+			readDatabaseData();
+		}
 	}
 
 	// 初始化popwindow界面组件
@@ -297,20 +408,26 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	public void onBackPressed() {
-		super.onBackPressed();
-		// if (!is_back_pressed) {
-		// ToastUtils.show(mContext, "再按一次退出");
-		// is_back_pressed = true;
-		// Timer timer = new Timer();
-		// timer.schedule(new TimerTask() {
-		// @Override
-		// public void run() {
-		// is_back_pressed = false;
-		// }
-		// }, 2000);
-		// } else {
-		// finish();
-		// }
+		if (CurrentType == myConstant.ParentTable) {
+			if (!is_back_pressed) {
+				ToastUtils.show(mContext, "再按一次退出");
+				is_back_pressed = true;
+				Timer timer = new Timer();
+				timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						is_back_pressed = false;
+					}
+				}, 2000);
+			} else {
+				finish();
+			}
+		} else {
+			CurrentType = data.get(0).getParentName();
+			data.clear();
+			ToastUtils.show(mContext, CurrentType);
+			readDatabaseData();
+		}
 	}
 
 	// 设置popwindow显示在组件上方
@@ -322,7 +439,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	// 处理添加分类操作方法封装
-	private void handleAddType(String type, Dialog dialog) {
+	private void handleAddType(String type, Dialog dialog, String parent) {
 		// 添加分类操作，操作数据库，新建分类表，刷新当前列表
 		// 首先用户输入是否为空
 		if (TextUtils.isEmpty(type)) {
@@ -343,17 +460,9 @@ public class MainActivity extends BaseActivity {
 			// 设置当前项为分类项
 			values.put(myConstant.NotesType, 0);
 			values.put(myConstant.NotesName, type);
-			values.put(myConstant.Parent, CurrentType);
+			values.put(myConstant.Parent, parent);
 			values.put(myConstant.NotesTime, TimeFormatUtil.format(new Date()));
-			myNotesdatabase.insert(CurrentType, null, values);
-			// 更新列表
-			notesItem item = new notesItem();
-			item.setNotesType(0);
-			item.setNotesName(type);
-			item.setParentName(CurrentType);
-			item.setNotesTime(TimeFormatUtil.format(new Date()));
-			data.add(item);
-			adapter.notifyDataSetChanged();
+			myNotesdatabase.insert(parent, null, values);
 			// 隐藏对话框
 			dialog.dismiss();
 			data_null_notes.setVisibility(View.INVISIBLE);
@@ -363,8 +472,8 @@ public class MainActivity extends BaseActivity {
 	// 读取根列表数据库数据，并刷新列表
 	private void readDatabaseData() {
 		// 进行数据库操作，读取分类数据，更新列表
-		Cursor cursor = myNotesdatabase.query(myConstant.ParentTable, null,
-				null, null, null, null, null);
+		Cursor cursor = myNotesdatabase.query(CurrentType, null, null, null,
+				null, null, null);
 		cursor.move(-1);
 		while (cursor.moveToNext()) {
 			// 数据不为空，显示隐藏提示信息
@@ -402,9 +511,12 @@ public class MainActivity extends BaseActivity {
 	// 读取标签数据
 	private ArrayList<String> readLabels(String data) {
 		ArrayList<String> labels = new ArrayList<String>();
-		String[] l = data.split("\\|");
-		for (String la : l) {
-			labels.add(la);
+		// 首先判断数据是否为空值
+		if (!TextUtils.isEmpty(data)) {
+			String[] l = data.split("\\|");
+			for (String la : l) {
+				labels.add(la);
+			}
 		}
 		return labels;
 	}
@@ -412,9 +524,12 @@ public class MainActivity extends BaseActivity {
 	// 读取图片数据
 	private ArrayList<String> readImages(String data) {
 		ArrayList<String> images = new ArrayList<String>();
-		String[] ima = data.split("\\|");
-		for (String i : ima) {
-			images.add(i);
+		// 首先判断数据是否为空值
+		if (!TextUtils.isEmpty(data)) {
+			String[] ima = data.split("\\|");
+			for (String i : ima) {
+				images.add(i);
+			}
 		}
 		return images;
 	}

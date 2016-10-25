@@ -73,10 +73,8 @@ public class NoteslistAdapter extends BaseAdapter {
 			int i = 0;
 			Cursor cursor = database.query(data.get(position).getNotesName(),
 					null, null, null, null, null, null);
-			cursor.move(-1);
-			while (cursor.moveToNext()) {
-				i++;
-			}
+			// 获取查询到的数据数量
+			i = cursor.getCount();
 			// 显示当前分类下笔记数量
 			holder.notesnum_summary.setText(i + "项");
 		} else if (data.get(position).getNotesType() == 1) {// 当前项为笔记
