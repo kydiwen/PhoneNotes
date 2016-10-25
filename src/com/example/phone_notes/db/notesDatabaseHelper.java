@@ -22,24 +22,27 @@ public class notesDatabaseHelper extends SQLiteOpenHelper {
 			+ myConstant.NotesName + " text," + myConstant.NotesType
 			+ " integer," + myConstant.NoteLists + " text,"
 			+ myConstant.Notesmessage + " text," + myConstant.Images + " text,"
-			+ myConstant.Parent + " text," + myConstant.NotesTime + " text"
-			+ ")";
+			+ myConstant.NotesLabel + " text," + myConstant.Parent + " text,"
+			+ myConstant.NotesTime + " text" + ")";
 	// 创建所有具体笔记的列表
 	private String CreateNotesOnlyTable = "create table "
 			+ myConstant.NotesOnlyTable + "("
 			+ "_id integer primary key autoincrement," + myConstant.NotesName
 			+ " text," + myConstant.NotesType + " integer,"
 			+ myConstant.NoteLists + " text," + myConstant.Notesmessage
-			+ " text," + myConstant.Images + " text," + myConstant.Parent
-			+ " text," + myConstant.NotesTime + " text" + ")";
-	//创建存放回收站笔记的列表
+			+ " text," + myConstant.NotesLabel + " text," + myConstant.Images
+			+ " text," + myConstant.Parent + " text," + myConstant.NotesTime
+			+ " text" + ")";
+	// 创建存放回收站笔记的列表
 	private String CreateRetrieveNotesTable = "create table "
 			+ myConstant.RetrieveNotes + "("
 			+ "_id integer primary key autoincrement," + myConstant.NotesName
 			+ " text," + myConstant.NotesType + " integer,"
 			+ myConstant.NoteLists + " text," + myConstant.Notesmessage
 			+ " text," + myConstant.Images + " text," + myConstant.Parent
-			+ " text," + myConstant.NotesTime + " text" + ")";
+			+ " text," + myConstant.NotesLabel + " text,"
+			+ myConstant.NotesTime + " text" + ")";
+
 	// 私有化构造方法
 	private notesDatabaseHelper(Context context) {
 		super(context, "notes_db", null, 1);
@@ -51,7 +54,7 @@ public class notesDatabaseHelper extends SQLiteOpenHelper {
 		db.execSQL(CreateRootTable);
 		// 创建存储具体笔记的列表
 		db.execSQL(CreateNotesOnlyTable);
-		//创建存储回收站笔记的列表
+		// 创建存储回收站笔记的列表
 		db.execSQL(CreateRetrieveNotesTable);
 	}
 

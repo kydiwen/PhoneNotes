@@ -65,6 +65,30 @@
             android:layout_marginRight="20dp"
             android:src="@drawable/add" >
         </ImageView>
+
+        <RelativeLayout
+            android:id="@+id/data_null_notes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true" >
+
+            <ImageView
+                android:id="@+id/img_datanull"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/data_null" >
+            </ImageView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/img_datanull"
+                android:layout_centerHorizontal="true"
+                android:padding="5dp"
+                android:text="暂无数据" >
+            </TextView>
+        </RelativeLayout>
     </RelativeLayout>
 
 </LinearLayout>

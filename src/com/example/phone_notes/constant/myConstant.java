@@ -47,4 +47,6 @@ public interface myConstant {
 	public static final int Notes_edit = 1;
 	// 保存添加笔记请求码
 	public static final int RequestCode_addnotes = 3;
+	//保存笔记标签列名称
+	public static final String NotesLabel="noteslabel";
 }
