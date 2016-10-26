@@ -1,5 +1,6 @@
 package com.example.phone_notes.bean;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
@@ -12,7 +13,7 @@ import java.util.ArrayList;
  * @author 孙文权
  * 
  */
-public class notesItem {
+public class notesItem implements Serializable {
 	private String notesName;// 分类名称或笔记标题
 	private int notesType;// 标示是分类还是具体的笔记，只有是具体的笔记时，message和images才会存在
 	private ArrayList<notesItem> listNotes;// 分类下笔记或分类集合
@@ -21,6 +22,7 @@ public class notesItem {
 	private String parentName;// 所在分类名称
 	private ArrayList<String> labels;// 存放标签信息
 	private String notesTime;// 笔记的时间，分类不设置此属性
+
 	public String getNotesTime() {
 		return notesTime;
 	}

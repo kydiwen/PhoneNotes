@@ -5,10 +5,112 @@
     android:fitsSystemWindows="true"
     android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="编辑查看页面" >
-    </TextView>
+        android:background="@color/main_color"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="10dp" >
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="易笔记"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" >
+        </TextView>
+
+        <ImageView
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_menu_save" >
+        </ImageView>
+    </LinearLayout>
+    <!-- 添加标题部分 -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="标题："
+            android:textSize="16sp" >
+        </TextView>
+
+        <EditText
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="请输入标题" >
+        </EditText>
+    </LinearLayout>
+    <!-- 添加标签部分 -->
+
+    <LinearLayout
+        android:id="@+id/tag_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="标签："
+            android:textSize="16sp" >
+        </TextView>
+
+        <ImageView
+            android:id="@+id/btn_addtag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add" >
+        </ImageView>
+    </LinearLayout>
+    <!-- 添加笔记内容部分 -->
+
+    <EditText
+        android:id="@+id/note_message"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="left|top"
+        android:hint="添加笔记内容" >
+    </EditText>
+    <!-- 添加图片部分 -->
+
+    <LinearLayout
+        android:id="@+id/images_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="图片："
+            android:textSize="16sp" >
+        </TextView>
+
+        <ImageView
+            android:id="@+id/btn_addimgs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/add" >
+        </ImageView>
+    </LinearLayout>
 
 </LinearLayout>

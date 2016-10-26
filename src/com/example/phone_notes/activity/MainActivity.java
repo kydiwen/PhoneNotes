@@ -205,11 +205,8 @@ public class MainActivity extends BaseActivity {
 			@Override
 			public void onClick(View v) {
 				// 点击添加笔记:此操作进入添加与编辑界面，传递操作类型值，在下一页面做出区分
-				Intent intent = new Intent(mContext,
-						NotesDetailEditActivity.class);
-				intent.putExtra(myConstant.NotesOperateType,
-						myConstant.Notes_add);
-				startActivityForResult(intent, myConstant.RequestCode_addnotes);
+				handleAddNotes(myConstant.AddNotesInCurrentType, ParentTable,
+						null, CurrentType);
 			}
 		});
 		// 回收站按钮点击事件
@@ -312,7 +309,10 @@ public class MainActivity extends BaseActivity {
 
 				@Override
 				public void onClick(View v) {
-
+					ParentTable = CurrentType;
+					CurrentType = data.get(position).getNotesName();
+					handleAddNotes(myConstant.AddNotesAndEnterType,
+							ParentTable, nulldialog, CurrentType);
 				}
 			});
 		} else {// 当前分类不为空，点击刷新当前分类列表，并更新CurrentType用于在监听返回键时返回上一级列表
@@ -472,6 +472,50 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
+	// 处理添加笔记操作
+	private void handleAddNotes(int addType, String parent, Dialog dialog,
+			String currenttype) {
+		/**
+		 * 
+		 * 
+		 * 添加笔记操作氛分为两种情况 1，点击主页面添加按钮：在当前类型下添加笔记：进入笔记编辑页面，添加后返回笔记bean值，然后刷新当前列表
+		 * 2，点击笔记分类单项：当此分类为空时，点击进入笔记添加页面，添加后返回笔记bean值，然后进入此分类页面
+		 * 
+		 * 
+		 */
+		switch (addType) {
+		case myConstant.AddNotesInCurrentType:
+			// 在当前分类下添加笔记，即点击右下方按钮进行相关操作
+			// 传递parent属性到笔记添加页面
+			Intent intent = new Intent(mContext, NotesDetailEditActivity.class);
+			intent.putExtra(myConstant.Parent, parent);
+			intent.putExtra(myConstant.NotesDetailEditActivity_operatetype,
+					myConstant.NotesDetailEditActivity_ADD);
+			intent.putExtra(myConstant.notesDetailEditActivity_CurrentType,
+					currenttype);
+			startActivityForResult(intent, myConstant.RequestCode_addnotes);
+			break;
+		case myConstant.AddNotesAndEnterType:
+			// 点击数据为空的列表项，选择添加笔记按钮，添加笔记后进入该分类
+			// 点击笔记列表，当为分类并且所点击分类数据为空时，点击添加笔记，进入编辑页面，然后刷新列表
+			// 传递parent属性到笔记添加页面
+			Intent intent2 = new Intent(mContext, NotesDetailEditActivity.class);
+			intent2.putExtra(myConstant.Parent, parent);
+			intent2.putExtra(myConstant.NotesDetailEditActivity_operatetype,
+					myConstant.NotesDetailEditActivity_ADD);
+			intent2.putExtra(myConstant.notesDetailEditActivity_CurrentType,
+					currenttype);
+			startActivityForResult(intent2,
+					myConstant.RequestCode_addnotesEnterType);
+			// 隐藏对话框
+			dialog.dismiss();
+			break;
+		default:
+			break;
+		}
+
+	}
+
 	// 读取根列表数据库数据，并刷新列表
 	private void readDatabaseData() {
 		// 进行数据库操作，读取分类数据，更新列表
@@ -538,15 +582,25 @@ public class MainActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	protected void onActivityResult(int requestCode, int resultCode,
+			Intent intent) {
 		// TODO Auto-generated method stub
-		super.onActivityResult(requestCode, resultCode, data);
+		super.onActivityResult(requestCode, resultCode, intent);
 		switch (requestCode) {
 		// 添加笔记后更新当前分类列表
 		case myConstant.RequestCode_addnotes:
-
+			notesItem item = (notesItem) intent
+					.getSerializableExtra(myConstant.NotesReturned);
+			data.add(item);
+			adapter.notifyDataSetChanged();
 			break;
-
+		// 添加分类后进入下一级页面
+		case myConstant.RequestCode_addnotesEnterType:
+			notesItem item2 = (notesItem) intent
+					.getSerializableExtra(myConstant.NotesReturned);
+			data.clear();
+			readDatabaseData();
+			break;
 		default:
 			break;
 		}
