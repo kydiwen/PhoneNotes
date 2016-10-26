@@ -72,5 +72,6 @@ public interface myConstant {
 	public static final int Take_Photo = 8;
 	public static final int Choose_Photo = 9;
 	public static final int Crop_Photo = 10;
-
+	// 传递到详情页面的笔记数据
+	public static final String NotesToShowIm_NotesDetailActivity = "notestoshow";
 }

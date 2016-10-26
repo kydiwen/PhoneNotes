@@ -35,6 +35,8 @@
         </activity>
         <activity android:name="com.example.phone_notes.activity.RetrieveActivity" >
         </activity>
+        <activity android:name="com.example.phone_notes.activity.NotesDetailActivity" >
+        </activity>
     </application>
 
 </manifest>

@@ -232,13 +232,22 @@ public class MainActivity extends BaseActivity {
 					handle_listitemclick_type(position);
 					break;
 				case 1:// 当前是笔记
-					
+					handle_listitemclick_note(position);
 					break;
 				default:
 					break;
 				}
 			}
 		});
+	}
+
+	// 处理笔记列表点击事件---点击笔记列表项
+	private void handle_listitemclick_note(int position) {
+		// 进入笔记详情页面
+		Intent intent = new Intent(mContext, NotesDetailActivity.class);
+		intent.putExtra(myConstant.NotesToShowIm_NotesDetailActivity,
+				data.get(position));
+		startActivity(intent);
 	}
 
 	// 处理笔记列表点击事件---点击分类列表项

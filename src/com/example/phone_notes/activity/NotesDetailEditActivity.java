@@ -15,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -82,23 +83,29 @@ public class NotesDetailEditActivity extends BaseActivity {
 
 			@Override
 			public void onClick(View v) {
-				notesItem item = new notesItem();
-				// 设置父表
-				item.setParentName(parentTable);
-				// 设置标题
-				item.setNotesName(title.getText().toString());
-				// 设置标签
-				item.setLabels(tags);
-				// 设置笔记内容
-				item.setMessage(note_message.getText().toString());
-				// 设置图片
-				item.setImages(images);
-				// 设置时间
-				item.setNotesTime(TimeFormatUtil.format(new Date()));
-				// 设置此项为笔记
-				item.setNotesType(1);
-				// 保存到数据库
-				saveDataToDatabase(item);
+				if (TextUtils.isEmpty(title.getText().toString())
+						|| TextUtils.isEmpty(note_message.getText().toString())) {
+					ToastUtils.show(mContext, "您的输入不完整，请确定后再试");
+				} else {
+
+					notesItem item = new notesItem();
+					// 设置父表
+					item.setParentName(parentTable);
+					// 设置标题
+					item.setNotesName(title.getText().toString());
+					// 设置标签
+					item.setLabels(tags);
+					// 设置笔记内容
+					item.setMessage(note_message.getText().toString());
+					// 设置图片
+					item.setImages(images);
+					// 设置时间
+					item.setNotesTime(TimeFormatUtil.format(new Date()));
+					// 设置此项为笔记
+					item.setNotesType(1);
+					// 保存到数据库
+					saveDataToDatabase(item);
+				}
 			}
 		});
 		// 添加标签按钮
