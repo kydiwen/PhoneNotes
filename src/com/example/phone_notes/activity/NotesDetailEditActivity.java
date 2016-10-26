@@ -1,15 +1,28 @@
 package com.example.phone_notes.activity;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.example.phone_notes.R;
 import com.example.phone_notes.base.BaseActivity;
@@ -41,6 +54,8 @@ public class NotesDetailEditActivity extends BaseActivity {
 	private ArrayList<String> tags = new ArrayList<String>();// 标签内容
 	private ArrayList<String> images = new ArrayList<String>();// 图片内容
 	private String currentType;// 当前所处分类
+	private ArrayList<Uri> imgUris = new ArrayList<Uri>();
+	private Uri imgUri;
 
 	@Override
 	protected void initView() {
@@ -86,6 +101,104 @@ public class NotesDetailEditActivity extends BaseActivity {
 				saveDataToDatabase(item);
 			}
 		});
+		// 添加标签按钮
+		btn_addtag.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new Builder(mContext);
+				builder.setTitle("添加标签");
+				View view = View
+						.inflate(mContext, R.layout.dialog_addtag, null);
+				final EditText input_tagname = (EditText) view
+						.findViewById(R.id.input_tagname);
+				Button ensure = (Button) view.findViewById(R.id.ensure);
+				Button cancel = (Button) view.findViewById(R.id.cancel);
+				builder.setView(view);
+				final Dialog dialog = builder.create();
+				dialog.show();
+				// 确定按钮点击事件
+				ensure.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// 点击确定按钮添加标签到编辑界面
+						final View view = View.inflate(mContext,
+								R.layout.layout_tag, null);
+						final TextView tag = (TextView) view
+								.findViewById(R.id.tag);
+						ImageView btn_close = (ImageView) view
+								.findViewById(R.id.btn_close);
+						// 添加标签
+						tag.setText(input_tagname.getText().toString());
+						tags.add(input_tagname.getText().toString());
+						tag_container.addView(view);
+						dialog.dismiss();
+						// 点击关闭按钮
+						btn_close.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								tags.remove(tag.getText().toString());
+								tag_container.removeView(view);
+							}
+						});
+					}
+				});
+				// 取消按钮点击事件
+				cancel.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						dialog.dismiss();
+					}
+				});
+			}
+		});
+		// 添加图片按钮
+		btn_addimgs.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new Builder(mContext);
+				builder.setTitle("添加图片");
+				// 调用系统相机拍摄照片
+				builder.setPositiveButton("拍摄照片",
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								String path = DateFormat.format(
+										"yyyyMMddhhmmss", new Date())
+										.toString();
+								File file = new File(Environment
+										.getExternalStorageDirectory(),
+										"/okq/imgs/" + path + ".jpg");
+								imgUri = Uri.fromFile(file);
+								Intent intent = new Intent(
+										"android.media.action.IMAGE_CAPTURE");
+								intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);
+								startActivityForResult(intent,
+										myConstant.Take_Photo);// 启动相机拍照
+								dialog.dismiss();
+							}
+						});
+				// 从相册选取图片
+				builder.setNegativeButton("选取图片",
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								Intent intent = new Intent(
+										"android.intent.action.GET_CONTENT");
+								intent.setType("image/*");
+								startActivityForResult(intent,
+										myConstant.Choose_Photo);// 从相册选取图片
+								dialog.dismiss();
+							}
+						});
+				builder.create().show();
+			}
+		});
 	}
 
 	// 保存数据到数据库
@@ -112,7 +225,11 @@ public class NotesDetailEditActivity extends BaseActivity {
 		StringBuilder builder = new StringBuilder();
 		if (data.size() > 0) {
 			for (int i = 0; i < data.size(); i++) {
-				builder.append(data.get(i) + "|");
+				if (i != data.size() - 1) {
+					builder.append(data.get(i) + "|");
+				} else {
+					builder.append(data.get(i));
+				}
 			}
 		}
 		return builder.toString();
@@ -140,11 +257,69 @@ public class NotesDetailEditActivity extends BaseActivity {
 		parentTable = intent.getStringExtra(myConstant.Parent);
 		currentType = intent
 				.getStringExtra(myConstant.notesDetailEditActivity_CurrentType);
-		ToastUtils.show(mContext, currentType);
 	}
 
 	// 笔记编辑操作
 	private void handleNotesEdit() {
 		ToastUtils.show(mContext, "编辑笔记");
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// TODO Auto-generated method stub
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		case myConstant.Choose_Photo:
+			// 选取图片
+			Uri uri_choose;
+			uri_choose = data.getData();// 获取选取的图片路径
+			String path = DateFormat.format("yyyyMMddhhmmss", new Date())
+					.toString();
+			File file = new File(Environment.getExternalStorageDirectory(),
+					"/okq/imgs/" + path + ".jpg");
+			imgUri = Uri.fromFile(file);
+			Intent intent = new Intent("com.android.camera.action.CROP");
+			intent.setDataAndType(uri_choose, "image/*");// 第一个参数表示要处理图片的路径
+			intent.putExtra("scale", true);// 允许缩放
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);// 输出路径
+			startActivityForResult(intent, myConstant.Crop_Photo);
+			break;
+		case myConstant.Take_Photo:
+			// 拍摄照片
+			Intent intent2 = new Intent("com.android.camera.action.CROP");
+			intent2.setDataAndType(imgUri, "image/*");
+			intent2.putExtra("scale", true);// 允许缩放
+			intent2.putExtra(MediaStore.EXTRA_OUTPUT, imgUri);// 输出路径
+			startActivityForResult(intent2, myConstant.Crop_Photo);
+			break;
+		case myConstant.Crop_Photo:
+			// 裁剪照片
+			// 添加图片
+			final View view = View.inflate(mContext, R.layout.img_add, null);
+			ImageView img_add = (ImageView) view.findViewById(R.id.img_add);
+			ImageView img_del = (ImageView) view.findViewById(R.id.img_del);
+			try {
+				img_add.setImageBitmap(BitmapFactory
+						.decodeStream(getContentResolver().openInputStream(
+								imgUri)));
+				images_container.addView(view);
+				// 添加到需要保存的图片集合
+				images.add(imgUri.getPath());
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			// 删除按钮点击事件
+			img_del.setOnClickListener(new OnClickListener() {
+
+				@Override
+				public void onClick(View v) {
+					images_container.removeView(view);
+					images.remove(imgUri.getPath());
+				}
+			});
+			break;
+		default:
+			break;
+		}
 	}
 }

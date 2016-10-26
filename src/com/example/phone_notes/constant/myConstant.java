@@ -68,4 +68,9 @@ public interface myConstant {
 	public static final String notesDetailEditActivity_CurrentType = "currenttype";
 	// 添加笔记后返回数据
 	public static final String NotesReturned = "notesreturned";
+	// 以下是对图片的操作
+	public static final int Take_Photo = 8;
+	public static final int Choose_Photo = 9;
+	public static final int Crop_Photo = 10;
+
 }

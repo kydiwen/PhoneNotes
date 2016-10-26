@@ -1,10 +1,13 @@
 package com.example.phone_notes.base;
 
+import java.io.File;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Window;
 
 import com.example.phone_notes.R;
@@ -17,6 +20,8 @@ public abstract class BaseActivity extends Activity {
 	protected Context mContext;
 	protected SharedPreferences mPreferences;
 	protected SQLiteDatabase myNotesdatabase;
+	protected String parent_path = Environment.getExternalStorageDirectory()
+			.getPath() + "/okq/imgs";
 
 	/**
 	 * 进行一些初始化操作 隐藏标题栏， 初始化全局context， 设置状态栏颜色与App保持一致 ，初始化全局preference参数，
@@ -36,6 +41,7 @@ public abstract class BaseActivity extends Activity {
 		// 初始化数据库
 		myNotesdatabase = notesDatabaseHelper.getInstance(mContext)
 				.getWritableDatabase();
+		initImgsFolder();
 		initView();
 		initData();
 		initListener();
@@ -46,4 +52,12 @@ public abstract class BaseActivity extends Activity {
 	protected abstract void initData();
 
 	protected abstract void initListener();
+
+	// 初始化保存图片的文件夹
+	private void initImgsFolder() {
+		File file = new File(parent_path);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+	}
 }

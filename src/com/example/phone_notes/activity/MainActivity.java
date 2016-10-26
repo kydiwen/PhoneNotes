@@ -207,6 +207,7 @@ public class MainActivity extends BaseActivity {
 				// 点击添加笔记:此操作进入添加与编辑界面，传递操作类型值，在下一页面做出区分
 				handleAddNotes(myConstant.AddNotesInCurrentType, ParentTable,
 						null, CurrentType);
+				data_null_notes.setVisibility(View.INVISIBLE);
 			}
 		});
 		// 回收站按钮点击事件
@@ -231,6 +232,7 @@ public class MainActivity extends BaseActivity {
 					handle_listitemclick_type(position);
 					break;
 				case 1:// 当前是笔记
+					
 					break;
 				default:
 					break;
@@ -246,75 +248,78 @@ public class MainActivity extends BaseActivity {
 				null, null);
 		if (cursor.getCount() == 0) {// 当前分类无数据，点击提示添加分类或笔记
 			AlertDialog.Builder builder = new Builder(mContext);
-			View view = View.inflate(mContext,
-					R.layout.layout_dialog_handlenotesitemclick_null, null);
-			builder.setView(view);
-			final Dialog nulldialog = builder.create();
-			nulldialog.show();
-			nulldialog.getWindow().setLayout(250, 250);
-			TextView add_type = (TextView) view.findViewById(R.id.add_type);
-			TextView add_notes = (TextView) view.findViewById(R.id.add_notes);
-			// 设置添加分类点击事件
-			add_type.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					AlertDialog.Builder builder = new Builder(mContext);
-					View view = View.inflate(mContext, R.layout.dialog_addtype,
-							null);
-					final EditText input_typename = (EditText) view
-							.findViewById(R.id.input_typename);
-					Button ensure = (Button) view.findViewById(R.id.ensure);
-					Button cancel = (Button) view.findViewById(R.id.cancel);
-					builder.setTitle("添加分类");
-					builder.setView(view);
-					final Dialog dialog = builder.create();
-					dialog.show();
-					// 确定按钮点击事件
-					ensure.setOnClickListener(new OnClickListener() {
+			builder.setTitle("选择操作");
+			// 设置添加分类按钮点击事件
+			builder.setPositiveButton("添加分类",
+					new DialogInterface.OnClickListener() {
 
 						@Override
-						public void onClick(View v) {
+						public void onClick(final DialogInterface dialog,
+								int which) {
+							// TODO Auto-generated method stub
+							AlertDialog.Builder builder = new Builder(mContext);
+							View view = View.inflate(mContext,
+									R.layout.dialog_addtype, null);
+							final EditText input_typename = (EditText) view
+									.findViewById(R.id.input_typename);
+							Button ensure = (Button) view
+									.findViewById(R.id.ensure);
+							Button cancel = (Button) view
+									.findViewById(R.id.cancel);
+							builder.setTitle("添加分类");
+							builder.setView(view);
+							final Dialog dialog1 = builder.create();
+							dialog1.show();
+							// 确定按钮点击事件
+							ensure.setOnClickListener(new OnClickListener() {
+
+								@Override
+								public void onClick(View v) {
+									ParentTable = CurrentType;
+									CurrentType = data.get(position)
+											.getNotesName();
+									handleAddType(input_typename.getText()
+											.toString(), dialog1, ParentTable);
+									// 添加成功后刷新当前列表，更新当前列表下数据
+									adapter.notifyDataSetChanged();
+									// 隐藏对话框
+									dialog1.dismiss();
+									dialog.dismiss();
+									// 刷新数据后进入新建分类列表
+									data.clear();
+									// 重新读取数据库，获取更新后笔记列表
+									readDatabaseData();
+									// 隐藏对话框
+									dialog1.dismiss();
+								}
+							});
+							// 取消按钮点击事件
+							cancel.setOnClickListener(new OnClickListener() {
+
+								@Override
+								public void onClick(View v) {
+									// TODO Auto-generated method stub
+									dialog1.dismiss();
+									dialog.dismiss();
+								}
+							});
+						}
+
+					});
+			// 设置添加笔记按钮点击事件
+			builder.setNegativeButton("添加笔记",
+					new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
 							ParentTable = CurrentType;
 							CurrentType = data.get(position).getNotesName();
-							handleAddType(input_typename.getText().toString(),
-									dialog, ParentTable);
-							// 添加成功后刷新当前列表，更新当前列表下数据
-							adapter.notifyDataSetChanged();
-							// 隐藏对话框
-							dialog.dismiss();
-							nulldialog.dismiss();
-							// 刷新数据后进入新建分类列表
-							data.clear();
-							// 重新读取数据库，获取更新后笔记列表
-							readDatabaseData();
-							// 隐藏对话框
-							dialog.dismiss();
+							handleAddNotes(myConstant.AddNotesAndEnterType,
+									ParentTable, (Dialog) dialog, CurrentType);
 						}
 					});
-					// 取消按钮点击事件
-					cancel.setOnClickListener(new OnClickListener() {
-
-						@Override
-						public void onClick(View v) {
-							// TODO Auto-generated method stub
-							dialog.dismiss();
-							nulldialog.dismiss();
-						}
-					});
-				}
-			});
-			// 设置添加笔记点击事件
-			add_notes.setOnClickListener(new OnClickListener() {
-
-				@Override
-				public void onClick(View v) {
-					ParentTable = CurrentType;
-					CurrentType = data.get(position).getNotesName();
-					handleAddNotes(myConstant.AddNotesAndEnterType,
-							ParentTable, nulldialog, CurrentType);
-				}
-			});
+			builder.create().show();
 		} else {// 当前分类不为空，点击刷新当前分类列表，并更新CurrentType用于在监听返回键时返回上一级列表
 			ParentTable = CurrentType;
 			CurrentType = data.get(position).getNotesName();
@@ -589,17 +594,21 @@ public class MainActivity extends BaseActivity {
 		switch (requestCode) {
 		// 添加笔记后更新当前分类列表
 		case myConstant.RequestCode_addnotes:
-			notesItem item = (notesItem) intent
-					.getSerializableExtra(myConstant.NotesReturned);
-			data.add(item);
-			adapter.notifyDataSetChanged();
+			if (resultCode == RESULT_OK) {
+				notesItem item = (notesItem) intent
+						.getSerializableExtra(myConstant.NotesReturned);
+				data.add(item);
+				adapter.notifyDataSetChanged();
+			}
 			break;
 		// 添加分类后进入下一级页面
 		case myConstant.RequestCode_addnotesEnterType:
-			notesItem item2 = (notesItem) intent
-					.getSerializableExtra(myConstant.NotesReturned);
-			data.clear();
-			readDatabaseData();
+			if (resultCode == RESULT_OK) {
+				notesItem item2 = (notesItem) intent
+						.getSerializableExtra(myConstant.NotesReturned);
+				data.clear();
+				readDatabaseData();
+			}
 			break;
 		default:
 			break;

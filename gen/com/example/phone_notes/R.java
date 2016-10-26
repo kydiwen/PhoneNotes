@@ -48,42 +48,48 @@ public final class R {
         public static final int add=0x7f020000;
         public static final int data_null=0x7f020001;
         public static final int ic_launcher=0x7f020002;
-        public static final int ic_menu_save=0x7f020003;
-        public static final int lock=0x7f020004;
-        public static final int login_bg=0x7f020005;
-        public static final int main_pop_selector=0x7f020006;
-        public static final int okq=0x7f020007;
-        public static final int top_back=0x7f020008;
-        public static final int unlock=0x7f020009;
+        public static final int ic_menu_close_clear_cancel=0x7f020003;
+        public static final int ic_menu_save=0x7f020004;
+        public static final int lock=0x7f020005;
+        public static final int login_bg=0x7f020006;
+        public static final int main_pop_selector=0x7f020007;
+        public static final int okq=0x7f020008;
+        public static final int top_back=0x7f020009;
+        public static final int unlock=0x7f02000a;
     }
     public static final class id {
-        public static final int add_notes=0x7f080016;
-        public static final int add_type=0x7f080015;
+        public static final int add_notes=0x7f08001e;
+        public static final int add_type=0x7f08001c;
         public static final int btn_add=0x7f080007;
         public static final int btn_addimgs=0x7f080010;
         public static final int btn_addtag=0x7f08000d;
+        public static final int btn_close=0x7f08001a;
         public static final int cancel=0x7f080012;
         public static final int data_null_notes=0x7f080008;
-        public static final int divide=0x7f080019;
-        public static final int divide1=0x7f08001a;
+        public static final int divide=0x7f08001d;
+        public static final int divide1=0x7f08001f;
         public static final int ensure=0x7f080003;
         public static final int guide_logo=0x7f080000;
         public static final int images_container=0x7f08000f;
+        public static final int img_add=0x7f080016;
         public static final int img_datanull=0x7f080009;
-        public static final int input_pass=0x7f080013;
-        public static final int input_pass_again=0x7f080014;
+        public static final int img_del=0x7f080017;
+        public static final int input_pass=0x7f080014;
+        public static final int input_pass_again=0x7f080015;
         public static final int input_password=0x7f080002;
-        public static final int input_typename=0x7f080011;
+        public static final int input_tagname=0x7f080011;
+        public static final int input_typename=0x7f080013;
         public static final int lock_unlock=0x7f080004;
         public static final int logo=0x7f080001;
         public static final int note_message=0x7f08000e;
         public static final int notes_list=0x7f080006;
-        public static final int notesnum_summary=0x7f080018;
-        public static final int retrieve=0x7f08001b;
+        public static final int notesnum_summary=0x7f080019;
+        public static final int retrieve=0x7f080020;
         public static final int save=0x7f08000a;
         public static final int search=0x7f080005;
+        public static final int tag=0x7f08001b;
         public static final int tag_container=0x7f08000c;
-        public static final int time=0x7f080017;
+        public static final int time=0x7f080018;
         public static final int title=0x7f08000b;
     }
     public static final class layout {
@@ -92,11 +98,13 @@ public final class R {
         public static final int activity_main=0x7f030002;
         public static final int activity_notesdetailedit=0x7f030003;
         public static final int activity_retrieve=0x7f030004;
-        public static final int dialog_addtype=0x7f030005;
-        public static final int dialog_pass_setting=0x7f030006;
-        public static final int layout_dialog_handlenotesitemclick_null=0x7f030007;
-        public static final int layout_noteslist_item=0x7f030008;
-        public static final int main_add_pop=0x7f030009;
+        public static final int dialog_addtag=0x7f030005;
+        public static final int dialog_addtype=0x7f030006;
+        public static final int dialog_pass_setting=0x7f030007;
+        public static final int img_add=0x7f030008;
+        public static final int layout_noteslist_item=0x7f030009;
+        public static final int layout_tag=0x7f03000a;
+        public static final int main_add_pop=0x7f03000b;
     }
     public static final class string {
         public static final int app_name=0x7f060000;
