@@ -66,7 +66,7 @@ public final class R {
         public static final int btn_addimgs=0x7f080015;
         public static final int btn_addtag=0x7f080012;
         public static final int btn_close=0x7f080022;
-        public static final int cancel=0x7f08001b;
+        public static final int cancel=0x7f080019;
         public static final int clear=0x7f080016;
         public static final int data_null_notes=0x7f080008;
         public static final int divide=0x7f080024;
@@ -81,7 +81,7 @@ public final class R {
         public static final int input_pass=0x7f08001d;
         public static final int input_pass_again=0x7f08001e;
         public static final int input_password=0x7f080002;
-        public static final int input_tagname=0x7f08001a;
+        public static final int input_tagname=0x7f08001b;
         public static final int input_typename=0x7f08001c;
         public static final int lock_unlock=0x7f080004;
         public static final int logo=0x7f080001;
@@ -89,7 +89,7 @@ public final class R {
         public static final int note_container=0x7f08000c;
         public static final int note_message=0x7f080013;
         public static final int notes_list=0x7f080006;
-        public static final int noteslist=0x7f080019;
+        public static final int noteslist=0x7f08001a;
         public static final int notesnum_summary=0x7f080021;
         public static final int retrieve=0x7f080027;
         public static final int retrieve_list=0x7f080017;

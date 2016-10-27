@@ -176,18 +176,24 @@ public class MainActivity extends BaseActivity {
 
 					@Override
 					public void onClick(View v) {
-						// 执行添加分类操作，首先判断所处分类，然后设置新建分类父类为所处分类
-						// 此处不改变父列表的值，只允许在页面跳转过程中改变
-						handleAddType(input_typename.getText().toString(),
-								dialog, ParentTable);
-						// 更新列表
-						notesItem item = new notesItem();
-						item.setNotesType(0);
-						item.setNotesName(input_typename.getText().toString());
-						item.setParentName(ParentTable);
-						item.setNotesTime(TimeFormatUtil.format(new Date()));
-						data.add(item);
-						adapter.notifyDataSetChanged();
+						if (TextUtils.isEmpty(input_typename.getText()
+								.toString())) {
+							ToastUtils.show(mContext, "输入不能为空");
+						} else {
+							// 执行添加分类操作，首先判断所处分类，然后设置新建分类父类为所处分类
+							// 此处不改变父列表的值，只允许在页面跳转过程中改变
+							handleAddType(input_typename.getText().toString(),
+									dialog, ParentTable);
+							// 更新列表
+							notesItem item = new notesItem();
+							item.setNotesType(0);
+							item.setNotesName(input_typename.getText()
+									.toString());
+							item.setParentName(ParentTable);
+							item.setNotesTime(TimeFormatUtil.format(new Date()));
+							data.add(item);
+							adapter.notifyDataSetChanged();
+						}
 					}
 				});
 				// 取消按钮点击事件

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -19,7 +21,6 @@ import com.example.phone_notes.adapter.NoteslistAdapter;
 import com.example.phone_notes.base.BaseActivity;
 import com.example.phone_notes.bean.notesItem;
 import com.example.phone_notes.constant.myConstant;
-import com.example.phone_notes.utils.ToastUtils;
 
 /**
  * 
@@ -32,7 +33,7 @@ import com.example.phone_notes.utils.ToastUtils;
 public class SearchActivity extends BaseActivity {
 	private ImageView back;// 顶部返回按钮
 	private EditText user_input;// 搜索框
-	private TextView search;// 搜索按钮
+	private TextView cancel;// 搜索按钮
 	private ListView noteslist;// 搜索结果列表
 	private ArrayList<notesItem> data = new ArrayList<notesItem>();// 搜索结果数据
 	private NoteslistAdapter adapter;// 搜索结果适配器
@@ -43,7 +44,7 @@ public class SearchActivity extends BaseActivity {
 		setContentView(R.layout.activity_search);
 		back = (ImageView) findViewById(R.id.back);
 		user_input = (EditText) findViewById(R.id.user_input);
-		search = (TextView) findViewById(R.id.search);
+		cancel = (TextView) findViewById(R.id.cancel);
 		noteslist = (ListView) findViewById(R.id.noteslist);
 	}
 
@@ -65,16 +66,11 @@ public class SearchActivity extends BaseActivity {
 			}
 		});
 		// 搜索按钮点击事件
-		search.setOnClickListener(new OnClickListener() {
+		cancel.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				if (!TextUtils.isEmpty(user_input.getText().toString())) {
-					data_userInput = user_input.getText().toString().trim();
-					searchData();
-				} else {
-					ToastUtils.show(mContext, "请输入您要搜索的内容");
-				}
+				finish();
 			}
 		});
 		// 设置列表项点击事件
@@ -88,6 +84,30 @@ public class SearchActivity extends BaseActivity {
 				intent.putExtra(myConstant.NotesToShowIm_NotesDetailActivity,
 						data.get(position));
 				startActivity(intent);
+			}
+		});
+		// 监听用户输入变化
+		user_input.addTextChangedListener(new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				data.clear();
+				data_userInput = s.toString();
+				searchData();
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				// TODO Auto-generated method stub
+
 			}
 		});
 	}
