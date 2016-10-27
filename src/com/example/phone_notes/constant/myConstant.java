@@ -74,4 +74,6 @@ public interface myConstant {
 	public static final int Crop_Photo = 10;
 	// 传递到详情页面的笔记数据
 	public static final String NotesToShowIm_NotesDetailActivity = "notestoshow";
+	// 回收站数据中所在表名列
+	public static final String NotesPreTable = "pre_table";
 }

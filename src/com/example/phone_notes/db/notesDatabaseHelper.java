@@ -39,9 +39,10 @@ public class notesDatabaseHelper extends SQLiteOpenHelper {
 			+ "_id integer primary key autoincrement," + myConstant.NotesName
 			+ " text," + myConstant.NotesType + " integer,"
 			+ myConstant.NoteLists + " text," + myConstant.Notesmessage
-			+ " text," + myConstant.Images + " text," + myConstant.Parent
-			+ " text," + myConstant.NotesLabel + " text,"
-			+ myConstant.NotesTime + " text" + ")";
+			+ " text," + myConstant.NotesPreTable + " text,"
+			+ myConstant.Images + " text," + myConstant.Parent + " text,"
+			+ myConstant.NotesLabel + " text," + myConstant.NotesTime + " text"
+			+ ")";
 
 	// 私有化构造方法
 	private notesDatabaseHelper(Context context) {

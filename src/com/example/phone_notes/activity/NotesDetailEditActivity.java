@@ -86,6 +86,8 @@ public class NotesDetailEditActivity extends BaseActivity {
 				if (TextUtils.isEmpty(title.getText().toString())
 						|| TextUtils.isEmpty(note_message.getText().toString())) {
 					ToastUtils.show(mContext, "您的输入不完整，请确定后再试");
+				} else if (tags.size() == 0 || images.size() == 0) {// 强制添加标签和图片
+					ToastUtils.show(mContext, "请确保您已添加图片和标签");
 				} else {
 
 					notesItem item = new notesItem();

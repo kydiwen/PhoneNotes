@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -198,6 +199,8 @@ public class MainActivity extends BaseActivity {
 						dialog.dismiss();
 					}
 				});
+				// 点击后隐藏popwindow
+				pop.dismiss();
 			}
 		});
 		// 添加笔记点击事件
@@ -208,6 +211,8 @@ public class MainActivity extends BaseActivity {
 				handleAddNotes(myConstant.AddNotesInCurrentType, ParentTable,
 						null, CurrentType);
 				data_null_notes.setVisibility(View.INVISIBLE);
+				// 点击后隐藏popwindow
+				pop.dismiss();
 			}
 		});
 		// 回收站按钮点击事件
@@ -217,6 +222,8 @@ public class MainActivity extends BaseActivity {
 				// 点击进入回收站界面
 				Intent intent = new Intent(mContext, RetrieveActivity.class);
 				startActivity(intent);
+				// 点击后隐藏popwindow
+				pop.dismiss();
 			}
 		});
 		// 为笔记列表单项点击事件
@@ -239,6 +246,162 @@ public class MainActivity extends BaseActivity {
 				}
 			}
 		});
+		// 设置笔记列表的长按点击事件
+		notes_list.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					final int position, long id) {
+				// 长按列表项他能出对话框，提示用户删除笔记或分类，可选择放入回收站或彻底删除，放入回收站只需要将数据从原来表中删除并保存到回收站中，彻底删除需要进行递归调用，彻底删除数据
+				AlertDialog.Builder builder = new Builder(mContext);
+				builder.setTitle("删除操作");
+				// 彻底删除操作
+				builder.setPositiveButton("彻底删除",
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// 处理直接删除操作，无需存入回收站，直接执行sqlite delete操作
+								handleDeleteTabledirectly(position);
+								dialog.dismiss();
+							}
+						});
+				// 放入回收站操作
+				builder.setNegativeButton("放入回收站",
+						new DialogInterface.OnClickListener() {
+
+							@Override
+							public void onClick(DialogInterface dialog,
+									int which) {
+								// 处理放入回收站操作，读取当前数据，保存到回收站，并添加currenttype值到pretable属性，用于撤销删除的操作
+								handleDeleteTableIntoRetrieve(position);
+								dialog.dismiss();
+							}
+						});
+				builder.create().show();
+				// 返回true拦截用户操作，避免触发点击事件
+				return true;
+			}
+		});
+	}
+
+	// 处理删除数据到回收站的操作
+	private void handleDeleteTableIntoRetrieve(int position) {
+		// 首先保存数据到回收站
+		notesItem item = data.get(position);
+		ContentValues values = new ContentValues();
+
+		// 保存原来报所在的分类
+		values.put(myConstant.NotesPreTable, CurrentType);
+		// 保存数据类型
+		values.put(myConstant.NotesType, item.getNotesType());
+		// 保存数据名称
+		values.put(myConstant.NotesName, item.getNotesName());
+		// 保存数据时间
+		values.put(myConstant.NotesTime, item.getNotesTime());
+		// 保存数据父表
+		values.put(myConstant.Parent, item.getParentName());
+		if (item.getNotesType() == 1) {// 当前是笔记
+			// 保存笔记内容
+			values.put(myConstant.Notesmessage, item.getMessage());
+			// 保存图片资源
+			values.put(myConstant.Images, splicecharacter(item.getImages()));
+			// 保存标签
+			values.put(myConstant.NotesLabel, splicecharacter(item.getLabels()));
+		}
+		// 保存到回收站
+		myNotesdatabase.insert(myConstant.RetrieveNotes, null, values);
+		// 从当前表删除数据，并更新列表
+		myNotesdatabase.delete(CurrentType, myConstant.NotesName + "=?",
+				new String[] { item.getNotesName() });
+		data.remove(item);
+		adapter.notifyDataSetChanged();
+		if (data.size() == 0) {
+			data_null_notes.setVisibility(View.VISIBLE);
+		}
+	}
+
+	// 处理直接删除数据操作
+	private void handleDeleteTabledirectly(int position) {
+		// 获取当前数据对象
+		notesItem item = data.get(position);
+		deleteData(item, CurrentType);
+		data.remove(item);
+		adapter.notifyDataSetChanged();
+		if (data.size() == 0) {
+			data_null_notes.setVisibility(View.VISIBLE);
+		}
+	}
+
+	// 递归删除数据
+	private void deleteData(notesItem item, String table_belongto) {
+		if (item.getNotesType() == 1) {// 需要删除项为笔记，直接从当前表删除
+			myNotesdatabase.delete(table_belongto, myConstant.NotesName + "=?",
+					new String[] { item.getNotesName() });
+		} else if (myNotesdatabase.query(item.getNotesName(), null, null, null,// 当前是分类
+				null, null, null).getCount() == 0) {// 当前分类中无数据，直接删除
+			String deleteTable = "drop  table " + item.getNotesName();
+			// 删除表
+			myNotesdatabase.execSQL(deleteTable);
+			// 从当前表删除数据
+			myNotesdatabase.delete(table_belongto, myConstant.NotesName + "=?",
+					new String[] { item.getNotesName() });
+		} else {// 当前分类存在数据，递归调用，依次删除
+			// 获取当前分类中所有数据
+			Cursor cursor = myNotesdatabase.query(item.getNotesName(), null,
+					null, null, null, null, null);
+			cursor.move(-1);
+			while (cursor.moveToNext()) {
+				notesItem item2 = new notesItem();
+				// 读取父列表
+				item2.setParentName(cursor.getString(cursor
+						.getColumnIndex(myConstant.Parent)));
+				// 读取分类名称
+				item2.setNotesName(cursor.getString(cursor
+						.getColumnIndex(myConstant.NotesName)));
+				// 读取笔记信息，当前为空值
+				item2.setMessage(cursor.getString(cursor
+						.getColumnIndex(myConstant.Notesmessage)));
+				// 读取数据类型数据
+				item2.setNotesType(cursor.getInt(cursor
+						.getColumnIndex(myConstant.NotesType)));
+				// 读取创建时间
+				item2.setNotesTime(cursor.getString(cursor
+						.getColumnIndex(myConstant.NotesTime)));
+				// 读取标签
+				ArrayList<String> labels = readLabels(cursor.getString(cursor
+						.getColumnIndex(myConstant.NotesLabel)));
+				item2.setLabels(labels);
+				// 读取图片
+				ArrayList<String> images = readImages(cursor.getString(cursor
+						.getColumnIndex(myConstant.Images)));
+				item2.setImages(images);
+				deleteData(item2, item.getNotesName());
+			}
+			// 最后删除分类
+			String deleteTable = "drop  table " + item.getNotesName();
+			// 删除表
+			myNotesdatabase.execSQL(deleteTable);
+			// 从当前表删除数据
+			myNotesdatabase.delete(table_belongto, myConstant.NotesName + "=?",
+					new String[] { item.getNotesName() });
+		}
+	}
+
+	// 拼接标签或图片字符串
+	private String splicecharacter(ArrayList<String> data) {
+		StringBuilder builder = new StringBuilder();
+		if (data.size() > 0) {
+			for (int i = 0; i < data.size(); i++) {
+				if (i != data.size() - 1) {
+					builder.append(data.get(i) + "|");
+				} else {
+					builder.append(data.get(i));
+				}
+			}
+		}
+		return builder.toString();
 	}
 
 	// 处理笔记列表点击事件---点击笔记列表项
@@ -336,6 +499,7 @@ public class MainActivity extends BaseActivity {
 			// 重新读取当数据库，刷新笔记列表
 			readDatabaseData();
 		}
+
 	}
 
 	// 初始化popwindow界面组件
