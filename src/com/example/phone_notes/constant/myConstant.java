@@ -76,4 +76,6 @@ public interface myConstant {
 	public static final String NotesToShowIm_NotesDetailActivity = "notestoshow";
 	// 回收站数据中所在表名列
 	public static final String NotesPreTable = "pre_table";
+	// 打开回收站页面请求码
+	public static final int RequestCode_openretrieve = 11;
 }

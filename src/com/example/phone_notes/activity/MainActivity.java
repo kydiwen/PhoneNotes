@@ -221,7 +221,8 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				// 点击进入回收站界面
 				Intent intent = new Intent(mContext, RetrieveActivity.class);
-				startActivity(intent);
+				startActivityForResult(intent,
+						myConstant.RequestCode_openretrieve);
 				// 点击后隐藏popwindow
 				pop.dismiss();
 			}
@@ -282,6 +283,15 @@ public class MainActivity extends BaseActivity {
 				builder.create().show();
 				// 返回true拦截用户操作，避免触发点击事件
 				return true;
+			}
+		});
+		// 设置搜索框点击事件
+		search.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// 点击进入搜索页面
+				Intent intent = new Intent(mContext, SearchActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
@@ -782,6 +792,11 @@ public class MainActivity extends BaseActivity {
 				data.clear();
 				readDatabaseData();
 			}
+			break;
+		// 从回收站返回重新加载列表
+		case myConstant.RequestCode_openretrieve:
+			data.clear();
+			readDatabaseData();
 			break;
 		default:
 			break;
